@@ -30,18 +30,7 @@ pub fn matches() -> ArgMatches<'static> {
 
 /// Checks if a given prefix is a valid bech32 bitcoin address prefix
 fn check_prefix(prefix: String) -> Result<(), String> {
-    if !prefix.starts_with("bc1q") {
-        return Err("Prefix needs to start with \"bc1q\"".to_string());
-    }
-    if prefix.len() <= 4 {
-        return Err("Prefix is too short".to_string());
-    }
-    if prefix.len() >= 25 {
-        return Err("Prefix is too long".to_string());
-    }
-    if prefix[4..].chars().any(|c| "1bio".contains(c)) {
-        return Err("Prefix can't have the characters '1', 'b', 'i' or 'o'".to_string());
-    }
+
 
     Ok(())
 }

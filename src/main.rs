@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use bitcoin::util::bip32::ExtendedPubKey;
+use bitcoin::bip32::ExtendedPubKey;
 use indicatif::{ProgressBar, ProgressStyle};
 
 mod cli;

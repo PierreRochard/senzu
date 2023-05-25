@@ -1,9 +1,8 @@
 use core::panic;
 
 use bitcoin::{
-    secp256k1::{All, Secp256k1},
-    util::bip32::{ChildNumber, DerivationPath, ExtendedPubKey},
-    Address, Network,
+    secp256k1::{All, Secp256k1, self},
+    Address, Network, bip32::{ExtendedPubKey, DerivationPath, ChildNumber},
 };
 use rayon::prelude::*;
 
@@ -23,8 +22,7 @@ pub fn search_address(
             .path()
             .normal_children()
             .par_bridge()
-            .find_any(|path| check_path(&secp, xpub, prefixes, path));
-
+            .find_any(|path| check_path(&secp, xpub, prefixes, path));    
         if found_path.is_none() {
             root.increment();
         }
@@ -32,9 +30,10 @@ pub fn search_address(
 
     if let Some(path) = found_path {
         if let Ok(derived) = xpub.derive_pub(&secp, &path) {
-            if let Ok(address) = Address::p2wpkh(&derived.public_key, Network::Bitcoin) {
-                return Ok((path, address));
-            }
+            let secp = &secp256k1::Secp256k1::verification_only();
+            let merkle_root = None;
+            let address = Address::p2tr(secp, derived.to_x_only_pub(), merkle_root, Network::Bitcoin);
+            return Ok((path, address));
         }
     }
 
@@ -83,16 +82,14 @@ fn check_path(
     prefixes: &[&str],
     path: &DerivationPath,
 ) -> bool {
+    
     if let Ok(derived) = xpub.derive_pub(secp, path) {
-        if let Ok(address) = Address::p2wpkh(&derived.public_key, Network::Bitcoin) {
-            let addr_str = address.to_string();
-            prefixes.iter().any(|prefix| addr_str.starts_with(prefix))
-        } else {
-            panic!(
-                "Failed to create address from public key {}",
-                &derived.public_key
-            );
-        }
+        let secp = &secp256k1::Secp256k1::verification_only();
+        let merkle_root = None;
+        let address = Address::p2tr(secp, derived.to_x_only_pub(), merkle_root, Network::Bitcoin);
+        let addr_str = address.to_string();
+        prefixes.iter().any(|prefix| addr_str.ends_with(prefix))
+        
     } else {
         panic!("Failed to derive path {}", &path);
     }
@@ -102,7 +99,7 @@ fn check_path(
 mod tests {
     use std::str::FromStr;
 
-    use bitcoin::util::bip32::DerivationPath;
+    use bitcoin::bip32::DerivationPath;
 
     use crate::vanity::MAX_INDEX;
 

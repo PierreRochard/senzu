@@ -1,0 +1,22 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        // add a rust configuration
+        {
+            "name": "Debug",
+            "program":  "${workspaceRoot}/target/debug/${workspaceRootFolderName}",
+            "args": [
+                "--prefix", "bc1p00",
+                "--xpub", "xpub6AHA9hZDN11k2ijHMeS5QqHx2KP9aMBRhTDqANMnwVtdyw2TDYRmF8PjpvwUFcL1Et8Hj59S3gTSMcUQ5gAqTz3Wd8EsMTmF3DChhqPQBnU"
+            ],
+            "cwd": "${workspaceRoot}",
+            "type": "lldb",
+            "request": "launch"
+
+        }
+
+    ]
+}
